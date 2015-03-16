@@ -1,103 +1,8 @@
 /**
  * Torii version: 0.3.2
- * Built: Mon Mar 16 2015 10:40:05 GMT-0400 (EDT)
+ * Built: Mon Mar 16 2015 22:18:03 GMT+0100 (CET)
  */
 (function() {
-
-var define, requireModule, require, requirejs;
-
-(function() {
-  var registry = {}, seen = {}, state = {};
-  var FAILED = false;
-
-  define = function(name, deps, callback) {
-    registry[name] = {
-      deps: deps,
-      callback: callback
-    };
-  };
-
-  function reify(deps, name, seen) {
-    var length = deps.length;
-    var reified = new Array(length);
-    var dep;
-    var exports;
-
-    for (var i = 0, l = length; i < l; i++) {
-      dep = deps[i];
-      if (dep === 'exports') {
-        exports = reified[i] = seen;
-      } else {
-        reified[i] = require(resolve(dep, name));
-      }
-    }
-
-    return {
-      deps: reified,
-      exports: exports
-    };
-  }
-
-  requirejs = require = requireModule = function(name) {
-    if (state[name] !== FAILED &&
-        seen.hasOwnProperty(name)) {
-      return seen[name];
-    }
-
-    if (!registry[name]) {
-      throw new Error('Could not find module ' + name);
-    }
-
-    var mod = registry[name];
-    var reified;
-    var module;
-    var loaded = false;
-
-    seen[name] = { }; // placeholder for run-time cycles
-
-    try {
-      reified = reify(mod.deps, name, seen[name]);
-      module = mod.callback.apply(this, reified.deps);
-      loaded = true;
-    } finally {
-      if (!loaded) {
-        state[name] = FAILED;
-      }
-    }
-
-    return reified.exports ? seen[name] : (seen[name] = module);
-  };
-
-  function resolve(child, name) {
-    if (child.charAt(0) !== '.') { return child; }
-
-    var parts = child.split('/');
-    var nameParts = name.split('/');
-    var parentBase;
-
-    if (nameParts.length === 1) {
-      parentBase = nameParts;
-    } else {
-      parentBase = nameParts.slice(0, -1);
-    }
-
-    for (var i = 0, l = parts.length; i < l; i++) {
-      var part = parts[i];
-
-      if (part === '..') { parentBase.pop(); }
-      else if (part === '.') { continue; }
-      else { parentBase.push(part); }
-    }
-
-    return parentBase.join('/');
-  }
-
-  requirejs.entries = requirejs._eak_seen = registry;
-  requirejs.clear = function(){
-    requirejs.entries = requirejs._eak_seen = registry = {};
-    seen = state = {};
-  };
-})();
 
 define("torii/adapters/application", 
   ["exports"],
@@ -1329,7 +1234,9 @@ define("torii/redirect-handler",
         return new Ember.RSVP.Promise(function(resolve, reject){
           if (window.opener && window.opener.name === 'torii-opener') {
             postMessageFixed(window.opener, url);
-            window.close();
+            var winPopup = window;
+            Ember.Logger.log('updated torii...');
+            setTimeout(function(){ winPopup.close(); }, 500);
           } else {
             reject('No window.opener');
           }

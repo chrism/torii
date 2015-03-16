@@ -1,6 +1,6 @@
 /**
  * Torii version: 0.3.2
- * Built: Mon Mar 16 2015 10:40:05 GMT-0400 (EDT)
+ * Built: Mon Mar 16 2015 22:18:03 GMT+0100 (CET)
  */
 define("torii/adapters/application", 
   ["exports"],
@@ -1232,7 +1232,9 @@ define("torii/redirect-handler",
         return new Ember.RSVP.Promise(function(resolve, reject){
           if (window.opener && window.opener.name === 'torii-opener') {
             postMessageFixed(window.opener, url);
-            window.close();
+            var winPopup = window;
+            Ember.Logger.log('updated torii...');
+            setTimeout(function(){ winPopup.close(); }, 500);
           } else {
             reject('No window.opener');
           }
